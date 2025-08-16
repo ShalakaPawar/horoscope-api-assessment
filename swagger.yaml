@@ -1,0 +1,149 @@
+openapi: 3.0.3
+info:
+  title: Horoscope API
+  version: 1.0.0
+  description: API for personalized daily horoscopes.
+
+servers:
+  - url: http://localhost:3000
+    description: Local server
+
+paths:
+  /auth/signup:
+    post:
+      summary: User signup
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - email
+                - password
+                - birthdate
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  format: password
+                birthdate:
+                  type: string
+                  format: date
+      responses:
+        '200':
+          description: Signup success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  msg:
+                    type: string
+                  zodiac:
+                    type: string
+        '400':
+          description: User already exists
+
+  /auth/login:
+    post:
+      summary: User login
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  format: password
+      responses:
+        '200':
+          description: Login success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+        '401':
+          description: Invalid credentials
+
+  /horoscope/today:
+    get:
+      summary: Get today's horoscope
+      tags:
+        - Horoscope
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Today's horoscope
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  zodiac:
+                    type: string
+                  date:
+                    type: string
+                  text:
+                    type: string
+        '401':
+          description: Unauthorized
+        '429':
+          description: Rate limit exceeded
+
+  /horoscope/history:
+    get:
+      summary: Get last 7 days' horoscope history
+      tags:
+        - Horoscope
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Horoscope history
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  zodiac:
+                    type: string
+                  history:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        date:
+                          type: string
+                        text:
+                          type: string
+        '401':
+          description: Unauthorized
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
